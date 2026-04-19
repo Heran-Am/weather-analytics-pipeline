@@ -27,4 +27,26 @@ with dag:
     task1 = PythonOperator(
         task_id="ingest_data_task",
         python_callable=main,
+        
+        task2 = DockerOperator(
+        task_id="transform_data_task",
+        image="ghcr.io/dbt-labs/dbt-postgres:1.9.latest",
+        command="run",
+        working_dir="/usr/app",
+        mounts=[
+            Mount(source="/home/heran/repos/weather-data-project/dbt/my_project",
+                  target="/usr/app",
+                  type= "bind"                  ),
+            Mount(source="/home/heran/repos/weather-data-project/dbt/profiles/profiles.yml",
+                  target="/root/.dbt/profiles.yml",
+                  type= "bind"                  ),
+            ],
+        network_mode="my-network",
+        docker_url="unix://var/run/docker.sock",
+        auto_remove="sucess",
     )
+    
+    
+
+    )
+    task1 >> task2
